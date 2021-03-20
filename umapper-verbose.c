@@ -82,11 +82,29 @@ void print_map(mpr_map map, int details) {
 }
 
 void print_signal(mpr_sig sig, int details) {
-    printf("            ");
-    if (details)
+    if (details){
+        printf("            ");
         mpr_obj_print(sig, 0);
-    else
-        printf("%s ", mpr_obj_get_prop_as_str(sig, MPR_PROP_NAME, NULL));
+    }
+    else{
+        int len;
+        mpr_type type;
+        const void *val;
+
+        // Get the named instances associated with this signal, if any.
+        mpr_obj_get_prop_by_key((mpr_obj)sig, "inst_names", &len, &type, &val, 0);
+
+        if(len == 0){ // If there are no named instaces, print the wild card version
+            printf("            ");
+            printf("%s.?\n", mpr_obj_get_prop_as_str(sig, MPR_PROP_NAME, NULL)); // TODO: Rethink/confirm what to print if no named inst
+        }else{
+            for(int i = 0; i<len; i++){
+                printf("            ");
+                printf("%s.%s\n", mpr_obj_get_prop_as_str(sig, MPR_PROP_NAME, NULL), ((char **)val)[i]);
+            }
+        }
+
+    }
     printf("\n");
 }
 
